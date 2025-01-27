@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"github.com/razorpay/movie-service/internals/model"
 	"gorm.io/gorm"
 )
@@ -22,6 +23,7 @@ func NewMovieRepository(db *gorm.DB) MovieRepository {
 }
 
 func (r *movieRepository) CreateMovie(movie *model.Movie) error {
+	fmt.Println(movie)
 	return r.db.Create(movie).Error
 }
 

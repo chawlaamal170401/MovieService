@@ -3,11 +3,11 @@ syntax = "proto3";
 package movie;
 
 service MovieService {
-  rpc GetMovies (Empty) returns (MovieListResponse);
-  rpc GetMovie (MovieIDRequest) returns (MovieResponse);
+  rpc GetAllMovies (Empty) returns (MovieListResponse);
+  rpc GetMovieByID (MovieIDRequest) returns (MovieResponse);
   rpc CreateMovie (MovieRequest) returns (MovieResponse);
   rpc UpdateMovie (MovieRequest) returns (MovieResponse);
-  rpc DeleteMovie (MovieIDRequest) returns (Empty);
+  rpc DeleteMovieByID (MovieIDRequest) returns (Empty);
 }
 
 message Empty {}
@@ -21,7 +21,7 @@ message MovieRequest {
   string title = 2;
   string genre = 3;
   string director = 4;
-  int32 release_year = 5;
+  string release_year = 5;
   float rating = 6;
 }
 
@@ -30,7 +30,7 @@ message Movie {
   string title = 2;
   string genre = 3;
   string director = 4;
-  int32 release_year = 5;
+  string release_year = 5;
   float rating = 6;
 }
 

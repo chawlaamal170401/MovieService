@@ -6,38 +6,37 @@ import (
 )
 
 type MovieService interface {
-	Create(movie *model.Movie) error
-	GetByID(id uint) (*model.Movie, error)
-	GetAll() ([]model.Movie, error)
-	Update(movie *model.Movie) error
-	Delete(id uint) error
+	CreateMovie(movie *model.Movie) error
+	GetMovieByID(id uint) (*model.Movie, error)
+	GetAllMovies() ([]model.Movie, error)
+	UpdateMovie(movie *model.Movie) error
+	DeleteMovieByID(id uint) error
 }
 
 type movieService struct {
 	repo repositories.MovieRepository
 }
 
-// NewMovieService creates a new instance of the MovieService
 func NewMovieService(repo repositories.MovieRepository) MovieService {
 	return &movieService{repo: repo}
 }
 
-func (s *movieService) Create(movie *model.Movie) error {
+func (s *movieService) CreateMovie(movie *model.Movie) error {
 	return s.repo.CreateMovie(movie)
 }
 
-func (s *movieService) GetByID(id uint) (*model.Movie, error) {
+func (s *movieService) GetMovieByID(id uint) (*model.Movie, error) {
 	return s.repo.GetMovieByID(id)
 }
 
-func (s *movieService) GetAll() ([]model.Movie, error) {
+func (s *movieService) GetAllMovies() ([]model.Movie, error) {
 	return s.repo.GetAllMovies()
 }
 
-func (s *movieService) Update(movie *model.Movie) error {
+func (s *movieService) UpdateMovie(movie *model.Movie) error {
 	return s.repo.UpdateMovie(movie)
 }
 
-func (s *movieService) Delete(id uint) error {
+func (s *movieService) DeleteMovieByID(id uint) error {
 	return s.repo.DeleteMovieByID(id)
 }
