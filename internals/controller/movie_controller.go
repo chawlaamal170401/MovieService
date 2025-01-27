@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/razorpay/movie-service/internals/model"
 	services "github.com/razorpay/movie-service/internals/service"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -31,6 +32,7 @@ func (c *MovieController) CreateMovie(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.Printf("ReleaseYear from payload: %s", movie)
 	if err := c.service.CreateMovie(&movie); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

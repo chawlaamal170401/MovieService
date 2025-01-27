@@ -21,7 +21,7 @@ message MovieRequest {
   string title = 2;
   string genre = 3;
   string director = 4;
-  string release_year = 5;
+  string year = 5;
   float rating = 6;
 }
 
@@ -30,7 +30,7 @@ message Movie {
   string title = 2;
   string genre = 3;
   string director = 4;
-  string release_year = 5;
+  string year = 5;
   float rating = 6;
 }
 

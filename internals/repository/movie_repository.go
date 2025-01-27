@@ -1,9 +1,9 @@
 package repositories
 
 import (
-	"fmt"
 	"github.com/razorpay/movie-service/internals/model"
 	"gorm.io/gorm"
+	"log"
 )
 
 type MovieRepository interface {
@@ -23,7 +23,7 @@ func NewMovieRepository(db *gorm.DB) MovieRepository {
 }
 
 func (r *movieRepository) CreateMovie(movie *model.Movie) error {
-	fmt.Println(movie)
+	log.Printf("ReleaseYear before saving: %s", movie.Year)
 	return r.db.Create(movie).Error
 }
 

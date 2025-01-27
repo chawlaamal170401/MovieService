@@ -18,7 +18,7 @@ func upCreateMoviesTable(ctx context.Context, tx *sql.Tx) error {
             title VARCHAR(255) NOT NULL,
             genre VARCHAR(100),
             director VARCHAR(255),
-            release_year INT,
+            year VARCHAR(255),
             rating DECIMAL(3, 1),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
