@@ -1,0 +1,10 @@
+[server]
+    port = ":8080"
+
+[database]
+    driver = "postgres"
+    host = "localhost"
+    port = 5432
+    user = "movie_user"
+    password = "password@123"
+    dbname = "movies_db"
