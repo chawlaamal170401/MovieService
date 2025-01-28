@@ -1,56 +1,71 @@
 package main
 
 import (
-	"context"
+	"github.com/razorpay/movie-service/internals/database"
 	pb "github.com/razorpay/movie-service/internals/proto"
+	"github.com/razorpay/movie-service/internals/repository"
+	"github.com/razorpay/movie-service/internals/service"
 	"google.golang.org/grpc"
-	_ "google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+	"gorm.io/gorm"
 	"log"
-	"math/rand"
 	"net"
 )
 
-const (
-	port = ":8080"
-)
-
-func NewMovieServer() *MovieServer {
-	return &MovieServer{
-		movie_list: &pb.MovieListResponse{},
-	}
-}
-
-type MovieServer struct {
-	pb.UnimplementedMovieServiceServer
-	movie_list *pb.MovieListResponse
-}
-
-func (server *MovieServer) Run() error {
-	lis, err := net.Listen("tcp", port)
+func setupDatabase() (*gorm.DB, error) {
+	db, err := database.NewDB()
 	if err != nil {
-		log.Fatalf("Failed to listen %v", err)
+		return nil, err
 	}
-	s := grpc.NewServer()
-	pb.RegisterMovieServiceServer(s, server)
-	log.Printf("Server Running on : %v", lis.Addr())
-	return s.Serve(lis)
+	log.Println("Successfully connected to the database")
+	return db, nil
 }
 
-func (s *MovieServer) CreateMovie(ctx context.Context, in *pb.MovieRequest) (*pb.Movie, error) {
-	log.Printf("Recieved NewMovie: %s", in.GetTitle())
-	var movie_id int64 = int64(rand.Intn(1000))
-	created_movie := &pb.Movie{Title: in.GetTitle(), Genre: in.GetGenre(), Id: movie_id, Director: in.GetDirector(), Year: in.GetYear(), Rating: in.GetRating()}
-	s.movie_list.Movies = append(s.movie_list.Movies, created_movie)
-	return created_movie, nil
-}
+func setupGRPCServer(addr string, movieService *service.MovieService) (*grpc.Server, net.Listener, error) {
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		return nil, nil, err
+	}
 
-func (s *MovieServer) GetAllMovies(ctx context.Context, in *pb.Empty) (*pb.MovieListResponse, error) {
-	return s.movie_list, nil
+	server := grpc.NewServer()
+	reflection.Register(server)
+	pb.RegisterMovieServiceServer(server, movieService)
+
+	log.Printf("gRPC server is listening on %v", addr)
+	return server, listener, nil
 }
 
 func main() {
-	var movie_server *MovieServer = NewMovieServer()
-	if err := movie_server.Run(); err != nil {
-		log.Fatalf("Failed to run %v", err)
+	const addr = "0.0.0.0:8080"
+
+	log.Println("Starting gRPC server...")
+
+	db, err := setupDatabase()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer func() {
+		sqlDB, err := db.DB()
+		if err != nil {
+			log.Printf("Error getting underlying sql.DB: %v", err)
+		} else {
+			if err := sqlDB.Close(); err != nil {
+				log.Printf("Error closing database connection: %v", err)
+			} else {
+				log.Println("Database connection closed successfully")
+			}
+		}
+	}()
+
+	movieRepo := repository.NewMovieRepository(db)
+	movieService := service.NewMovieServer(movieRepo)
+
+	server, listener, err := setupGRPCServer(addr, movieService)
+	if err != nil {
+		log.Fatalf("Failed to setup gRPC server: %v", err)
+	}
+
+	if err := server.Serve(listener); err != nil {
+		log.Fatalf("Failed to serve gRPC server: %v", err)
 	}
 }

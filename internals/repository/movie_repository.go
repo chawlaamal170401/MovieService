@@ -1,52 +1,35 @@
-package repositories
+package repository
 
 import (
-	"github.com/razorpay/movie-service/internals/model"
+	"github.com/razorpay/movie-service/internals/database"
+	"github.com/razorpay/movie-service/internals/proto"
 	"gorm.io/gorm"
 	"log"
 )
 
-type MovieRepository interface {
-	CreateMovie(movie *model.Movie) error
-	GetMovieByID(id uint) (*model.Movie, error)
-	GetAllMovies() ([]model.Movie, error)
-	UpdateMovie(movie *model.Movie) error
-	DeleteMovieByID(id uint) error
-}
-
-type movieRepository struct {
+type MovieRepository struct {
 	db *gorm.DB
 }
 
-func NewMovieRepository(db *gorm.DB) MovieRepository {
-	return &movieRepository{db: db}
+func NewMovieRepository(db *gorm.DB) *MovieRepository {
+	return &MovieRepository{db: db}
 }
 
-func (r *movieRepository) CreateMovie(movie *model.Movie) error {
-	log.Printf("ReleaseYear before saving: %s", movie.Year)
-	return r.db.Create(movie).Error
-}
-
-func (r *movieRepository) GetMovieByID(id uint) (*model.Movie, error) {
-	var movie model.Movie
-	if err := r.db.First(&movie, id).Error; err != nil {
-		return nil, err
+func (r *MovieRepository) SaveMovie(movie *proto.Movie) error {
+	dbMovie := database.Movie{
+		Title:    movie.Title,
+		Genre:    movie.Genre,
+		Director: movie.Director,
+		Year:     movie.Year,
+		Rating:   float64(movie.Rating),
 	}
-	return &movie, nil
-}
 
-func (r *movieRepository) GetAllMovies() ([]model.Movie, error) {
-	var movies []model.Movie
-	if err := r.db.Find(&movies).Error; err != nil {
-		return nil, err
+	result := r.db.Create(&dbMovie)
+	if result.Error != nil {
+		log.Printf("Error saving movie to DB: %v", result.Error)
+		return result.Error
 	}
-	return movies, nil
-}
 
-func (r *movieRepository) UpdateMovie(movie *model.Movie) error {
-	return r.db.Save(movie).Error
-}
-
-func (r *movieRepository) DeleteMovieByID(id uint) error {
-	return r.db.Delete(&model.Movie{}, id).Error
+	log.Printf("Movie saved with ID: %d", dbMovie.ID)
+	return nil
 }

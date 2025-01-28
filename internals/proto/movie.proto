@@ -14,7 +14,7 @@ service MovieService {
   }
   rpc GetMovieByID (MovieIDRequest) returns (Movie){
     option (google.api.http) = {
-      get: "/v1/movie/{movieId}",
+      get: "/v1/movie/{id}",
     };
   };
   rpc CreateMovie (MovieRequest) returns (Movie){
@@ -23,15 +23,15 @@ service MovieService {
       body: "*"
     };
   };
-  rpc UpdateMovie (MovieRequest) returns (Movie){
+  rpc UpdateMovie (MovieIDRequest) returns (Movie){
     option (google.api.http) = {
-      put: "/v1/movie/{movie_id}",
+      put: "/v1/movie/{id}",
       body: "*"
     };
   };
   rpc DeleteMovieByID (MovieIDRequest) returns (Empty){
     option (google.api.http) = {
-      delete: "/v1/movie/{movie_id}",
+      delete: "/v1/movie/{id}",
     };
   };
 }
