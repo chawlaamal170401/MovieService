@@ -115,7 +115,7 @@ func local_request_MovieService_CreateMovie_0(ctx context.Context, marshaler run
 
 func request_MovieService_UpdateMovie_0(ctx context.Context, marshaler runtime.Marshaler, client MovieServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq MovieIDRequest
+		protoReq UpdateMovieRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -136,7 +136,7 @@ func request_MovieService_UpdateMovie_0(ctx context.Context, marshaler runtime.M
 
 func local_request_MovieService_UpdateMovie_0(ctx context.Context, marshaler runtime.Marshaler, server MovieServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq MovieIDRequest
+		protoReq UpdateMovieRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
