@@ -1,0 +1,9 @@
+#Make File
+
+
+protoc:
+  --proto_path=internals/proto \
+  --go_out=. --go-grpc_out=. \
+  --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative \
+  --grpc-gateway_out=. --grpc-gateway_opt=logtostderr=true --grpc-gateway_opt=paths=source_relative \
+  internals/proto/movie.proto
