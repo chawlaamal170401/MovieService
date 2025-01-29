@@ -2,12 +2,17 @@ package service
 
 import (
 	"context"
-	"github.com/razorpay/movie-service/internals/database"
+	"encoding/json"
+	"fmt"
+	models "github.com/razorpay/movie-service/internals/model"
 	pb "github.com/razorpay/movie-service/internals/proto"
 	"github.com/razorpay/movie-service/internals/repository"
 	"google.golang.org/grpc/metadata"
 	"log"
 	"math/rand"
+	"net/http"
+	"strconv"
+	"strings"
 )
 
 type MovieService struct {
@@ -94,7 +99,7 @@ func (s *MovieService) CreateMovie(ctx context.Context, in *pb.MovieRequest) (*p
 	return created_movie, nil
 }
 
-func (s *MovieService) DeleteMovieByID(ctx context.Context, in *pb.MovieIDRequest) (*pb.Empty, error) {
+func (s *MovieService) DeleteMovieByID(ctx context.Context, in *pb.MovieIDRequest) (*pb.ResponseMessage, error) {
 	log.Printf("Deleting movie with ID: %d", in.GetId())
 
 	err := s.repo.DeleteMovieByID(in.GetId())
@@ -102,13 +107,13 @@ func (s *MovieService) DeleteMovieByID(ctx context.Context, in *pb.MovieIDReques
 		log.Printf("Error deleting movie: %v", err)
 		return nil, err
 	}
-	return &pb.Empty{}, err
+	return &pb.ResponseMessage{Message: "Movie Deleted Successfully"}, err
 }
 
 func (s *MovieService) UpdateMovie(ctx context.Context, in *pb.UpdateMovieRequest) (*pb.Movie, error) {
 	log.Printf("Updating movie with ID: %d", in.GetId())
 
-	updatedMovie := &database.Movie{
+	updatedMovie := &models.Movie{
 		Title:    in.GetTitle(),
 		Genre:    in.GetGenre(),
 		Director: in.GetDirector(),
@@ -132,4 +137,70 @@ func (s *MovieService) UpdateMovie(ctx context.Context, in *pb.UpdateMovieReques
 		Year:     updatedMovie.Year,
 		Rating:   float32(updatedMovie.Rating),
 	}, nil
+}
+
+func (s *MovieService) InitializeMovies(apiURL string) error {
+	movies, err := s.repo.GetAllMovies()
+	if err != nil {
+		log.Printf("Error checking movies in the database: %v", err)
+		return err
+	}
+
+	if len(movies) > 0 {
+		log.Println("Movies already exist in the database. Skipping external API fetch.")
+		return nil
+	}
+
+	log.Println("No movies found in the database. Fetching from external API...")
+	return s.FetchMoviesFromExternalAPI(apiURL)
+}
+
+func (s *MovieService) FetchMoviesFromExternalAPI(apiURL string) error {
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		log.Printf("Error calling external API: %v", err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("external API returned status: %d", resp.StatusCode)
+	}
+
+	var externalMovies []struct {
+		Title    string   `json:"title"`
+		Genre    []string `json:"genre"`
+		Director string   `json:"director"`
+		Year     int      `json:"year"`
+		Rating   float32  `json:"rating"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&externalMovies); err != nil {
+		log.Printf("Error decoding API response: %v", err)
+		return err
+	}
+
+	for _, extMovie := range externalMovies {
+		yearString := strconv.Itoa(extMovie.Year)
+
+		genres := strings.Join(extMovie.Genre, ", ")
+
+		movie := models.Movie{
+			Title:    extMovie.Title,
+			Genre:    genres,
+			Director: extMovie.Director,
+			Year:     yearString,
+			Rating:   float64(extMovie.Rating),
+		}
+
+		err := s.repo.SaveExternalMovie(&movie)
+		if err != nil {
+			log.Printf("Error saving movie to database: %v", err)
+			continue
+		}
+
+		log.Printf("Saved movie: %s", movie.Title)
+	}
+
+	return nil
 }

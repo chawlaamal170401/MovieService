@@ -4,7 +4,7 @@
 // - protoc             v5.29.3
 // source: movie.proto
 
-package proto
+package movie_service
 
 import (
 	context "context"
@@ -34,7 +34,7 @@ type MovieServiceClient interface {
 	GetMovieByID(ctx context.Context, in *MovieIDRequest, opts ...grpc.CallOption) (*Movie, error)
 	CreateMovie(ctx context.Context, in *MovieRequest, opts ...grpc.CallOption) (*Movie, error)
 	UpdateMovie(ctx context.Context, in *UpdateMovieRequest, opts ...grpc.CallOption) (*Movie, error)
-	DeleteMovieByID(ctx context.Context, in *MovieIDRequest, opts ...grpc.CallOption) (*Empty, error)
+	DeleteMovieByID(ctx context.Context, in *MovieIDRequest, opts ...grpc.CallOption) (*ResponseMessage, error)
 }
 
 type movieServiceClient struct {
@@ -85,9 +85,9 @@ func (c *movieServiceClient) UpdateMovie(ctx context.Context, in *UpdateMovieReq
 	return out, nil
 }
 
-func (c *movieServiceClient) DeleteMovieByID(ctx context.Context, in *MovieIDRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *movieServiceClient) DeleteMovieByID(ctx context.Context, in *MovieIDRequest, opts ...grpc.CallOption) (*ResponseMessage, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
+	out := new(ResponseMessage)
 	err := c.cc.Invoke(ctx, MovieService_DeleteMovieByID_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ type MovieServiceServer interface {
 	GetMovieByID(context.Context, *MovieIDRequest) (*Movie, error)
 	CreateMovie(context.Context, *MovieRequest) (*Movie, error)
 	UpdateMovie(context.Context, *UpdateMovieRequest) (*Movie, error)
-	DeleteMovieByID(context.Context, *MovieIDRequest) (*Empty, error)
+	DeleteMovieByID(context.Context, *MovieIDRequest) (*ResponseMessage, error)
 	mustEmbedUnimplementedMovieServiceServer()
 }
 
@@ -126,7 +126,7 @@ func (UnimplementedMovieServiceServer) CreateMovie(context.Context, *MovieReques
 func (UnimplementedMovieServiceServer) UpdateMovie(context.Context, *UpdateMovieRequest) (*Movie, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMovie not implemented")
 }
-func (UnimplementedMovieServiceServer) DeleteMovieByID(context.Context, *MovieIDRequest) (*Empty, error) {
+func (UnimplementedMovieServiceServer) DeleteMovieByID(context.Context, *MovieIDRequest) (*ResponseMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMovieByID not implemented")
 }
 func (UnimplementedMovieServiceServer) mustEmbedUnimplementedMovieServiceServer() {}

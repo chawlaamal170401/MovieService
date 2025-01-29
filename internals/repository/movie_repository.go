@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/razorpay/movie-service/internals/database"
-	"github.com/razorpay/movie-service/internals/proto"
+	models "github.com/razorpay/movie-service/internals/model"
+	pb "github.com/razorpay/movie-service/internals/proto"
 	"gorm.io/gorm"
 	"log"
 )
@@ -15,8 +15,8 @@ func NewMovieRepository(db *gorm.DB) *MovieRepository {
 	return &MovieRepository{db: db}
 }
 
-func (r *MovieRepository) GetMovieByID(id int64) (*database.Movie, error) {
-	var movie database.Movie
+func (r *MovieRepository) GetMovieByID(id int64) (*models.Movie, error) {
+	var movie models.Movie
 	result := r.db.First(&movie, id)
 
 	if result.Error != nil {
@@ -27,8 +27,8 @@ func (r *MovieRepository) GetMovieByID(id int64) (*database.Movie, error) {
 	return &movie, nil
 }
 
-func (r *MovieRepository) SaveMovie(movie *proto.Movie) error {
-	dbMovie := database.Movie{
+func (r *MovieRepository) SaveMovie(movie *pb.Movie) error {
+	dbMovie := models.Movie{
 		Title:    movie.Title,
 		Genre:    movie.Genre,
 		Director: movie.Director,
@@ -46,8 +46,8 @@ func (r *MovieRepository) SaveMovie(movie *proto.Movie) error {
 	return nil
 }
 
-func (r *MovieRepository) GetAllMovies() ([]database.Movie, error) {
-	var movies []database.Movie
+func (r *MovieRepository) GetAllMovies() ([]models.Movie, error) {
+	var movies []models.Movie
 	result := r.db.Find(&movies)
 
 	if result.Error != nil {
@@ -59,7 +59,7 @@ func (r *MovieRepository) GetAllMovies() ([]database.Movie, error) {
 }
 
 func (r *MovieRepository) DeleteMovieByID(id int64) error {
-	result := r.db.Delete(&database.Movie{}, id)
+	result := r.db.Delete(&models.Movie{}, id)
 	if result.Error != nil {
 		log.Printf("Error deleting movie by ID %d: %v", id, result.Error)
 		return result.Error
@@ -67,8 +67,17 @@ func (r *MovieRepository) DeleteMovieByID(id int64) error {
 	return nil
 }
 
-func (repo *MovieRepository) UpdateMovieByID(id int64, updatedMovie *database.Movie) error {
-	var movie database.Movie
+func (repo *MovieRepository) SaveExternalMovie(movie *models.Movie) error {
+	result := repo.db.Create(movie)
+	if result.Error != nil {
+		log.Printf("Error saving movie: %v", result.Error)
+		return result.Error
+	}
+	return nil
+}
+
+func (repo *MovieRepository) UpdateMovieByID(id int64, updatedMovie *models.Movie) error {
+	var movie models.Movie
 	if err := repo.db.First(&movie, id).Error; err != nil {
 		log.Printf("Movie not found: %v", err)
 		return err

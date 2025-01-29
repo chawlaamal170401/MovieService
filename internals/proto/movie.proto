@@ -19,7 +19,7 @@ service MovieService {
   };
   rpc CreateMovie (MovieRequest) returns (Movie){
     option (google.api.http) = {
-      post: "/v1/movies",
+      post: "/v1/movie",
       body: "*"
     };
   };
@@ -29,7 +29,7 @@ service MovieService {
       body: "*"
     };
   };
-  rpc DeleteMovieByID (MovieIDRequest) returns (Empty){
+  rpc DeleteMovieByID (MovieIDRequest) returns (ResponseMessage){
     option (google.api.http) = {
       delete: "/v1/movie/{id}",
     };
@@ -40,6 +40,10 @@ message Empty {}
 
 message MovieIDRequest {
   int64 id = 1;
+}
+
+message ResponseMessage{
+  string message = 1;
 }
 
 message UpdateMovieRequest {

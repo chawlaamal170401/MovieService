@@ -1,6 +1,7 @@
 package database
 
 import (
+	models "github.com/razorpay/movie-service/internals/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -8,15 +9,6 @@ import (
 
 type DB struct {
 	*gorm.DB
-}
-
-type Movie struct {
-	gorm.Model
-	Title    string  `gorm:"type:varchar(100);not null"`
-	Genre    string  `gorm:"type:varchar(50);not null"`
-	Director string  `gorm:"type:varchar(100);not null"`
-	Year     string  `gorm:"type:varchar(100);not null"`
-	Rating   float64 `gorm:"type:decimal(3,1);not null"`
 }
 
 func NewDB() (*gorm.DB, error) {
@@ -28,7 +20,7 @@ func NewDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	if err := db.AutoMigrate(&Movie{}); err != nil {
+	if err := db.AutoMigrate(&models.Movie{}); err != nil {
 		log.Fatalf("Error automigrating database: %v", err)
 		return nil, err
 	}

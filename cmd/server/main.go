@@ -60,6 +60,11 @@ func main() {
 	movieRepo := repository.NewMovieRepository(db)
 	movieService := service.NewMovieServer(movieRepo)
 
+	apiURL := "https://freetestapi.com/api/v1/movies"
+	if err := movieService.InitializeMovies(apiURL); err != nil {
+		log.Fatalf("Failed to initialize movies: %v", err)
+	}
+
 	server, listener, err := setupGRPCServer(addr, movieService)
 	if err != nil {
 		log.Fatalf("Failed to setup gRPC server: %v", err)

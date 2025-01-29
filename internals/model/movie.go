@@ -1,14 +1,12 @@
-package model
+package models
 
-import "time"
+import "gorm.io/gorm"
 
 type Movie struct {
-	ID        int64     `json:"id"`
-	Title     string    `json:"title"`
-	Genre     string    `json:"genre"`
-	Director  string    `json:"director"`
-	Year      string    `json:"year"`
-	Rating    float32   `json:"rating"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	gorm.Model
+	Title    string  `gorm:"type:varchar(100);not null"`
+	Genre    string  `gorm:"type:varchar(50);not null"`
+	Director string  `gorm:"type:varchar(100);not null"`
+	Year     string  `gorm:"type:varchar(100);not null"`
+	Rating   float64 `gorm:"type:decimal(3,1);not null"`
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/razorpay/movie-service/internals/proto"
+	pb "github.com/razorpay/movie-service/internals/proto"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net/http"
@@ -26,7 +26,7 @@ func main() {
 		}),
 	)
 
-	if err = proto.RegisterMovieServiceHandler(context.Background(), mux, conn); err != nil {
+	if err = pb.RegisterMovieServiceHandler(context.Background(), mux, conn); err != nil {
 		log.Fatalf("failed to register the order server: %v", err)
 	}
 

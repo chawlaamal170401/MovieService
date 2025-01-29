@@ -6,7 +6,7 @@ Package movie_service is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package proto
+package movie_service
 
 import (
 	"context"
@@ -243,7 +243,7 @@ func RegisterMovieServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/movie.MovieService/CreateMovie", runtime.WithHTTPPathPattern("/v1/movies"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/movie.MovieService/CreateMovie", runtime.WithHTTPPathPattern("/v1/movie"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -375,7 +375,7 @@ func RegisterMovieServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/movie.MovieService/CreateMovie", runtime.WithHTTPPathPattern("/v1/movies"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/movie.MovieService/CreateMovie", runtime.WithHTTPPathPattern("/v1/movie"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -428,7 +428,7 @@ func RegisterMovieServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 var (
 	pattern_MovieService_GetAllMovies_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "movies"}, ""))
 	pattern_MovieService_GetMovieByID_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "movie", "id"}, ""))
-	pattern_MovieService_CreateMovie_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "movies"}, ""))
+	pattern_MovieService_CreateMovie_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "movie"}, ""))
 	pattern_MovieService_UpdateMovie_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "movie", "id"}, ""))
 	pattern_MovieService_DeleteMovieByID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "movie", "id"}, ""))
 )
