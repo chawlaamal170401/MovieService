@@ -40,7 +40,6 @@ func setupGRPCServer(addr string, movieService *service.MovieService) (*grpc.Ser
 func main() {
 	cfg, err := config.LoadConfig()
 	addr := fmt.Sprintf(cfg.Server.Host + ":" + cfg.Server.Port)
-
 	log.Println("Starting gRPC server...")
 
 	db, err := setupDatabase()
@@ -63,7 +62,7 @@ func main() {
 	movieRepo := repository.NewMovieRepository(db)
 	movieService := service.NewMovieServer(movieRepo)
 
-	apiURL := "https://freetestapi.com/api/v1/movies"
+	apiURL := fmt.Sprintf(cfg.External.BaseUrl + "/" + cfg.External.Version + "/" + cfg.External.EndPoint)
 	if err := movieService.InitializeMovies(apiURL); err != nil {
 		log.Fatalf("Failed to initialize movies: %v", err)
 	}

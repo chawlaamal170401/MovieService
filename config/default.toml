@@ -6,6 +6,11 @@
     host = "localhost"
     port = "5050"
 
+[external]
+    baseurl = "https://freetestapi.com/api"
+    version = "v1"
+    endpoint = "movies"
+
 [database]
     driver = "postgres"
     host = "localhost"

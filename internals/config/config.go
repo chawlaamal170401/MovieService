@@ -16,6 +16,7 @@ type Config struct {
 	Database DatabaseConfig
 	Server   ServerConfig
 	Client   ClientConfig
+	External ExternalConfig
 }
 
 func LoadConfig() (*Config, error) {
