@@ -14,7 +14,7 @@ func init() {
 func upCreateMoviesTable(ctx context.Context, tx *sql.Tx) error {
 	query := `
         CREATE TABLE movies (
-            id SERIAL PRIMARY KEY,
+            id PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
             genre VARCHAR(100),
             director VARCHAR(255),

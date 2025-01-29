@@ -27,7 +27,7 @@ func (r *MovieRepository) GetMovieByID(id int64) (*models.Movie, error) {
 	return &movie, nil
 }
 
-func (r *MovieRepository) SaveMovie(movie *pb.Movie) error {
+func (r *MovieRepository) SaveMovie(movie *pb.Movie) (uint, error) {
 	dbMovie := models.Movie{
 		Title:    movie.Title,
 		Genre:    movie.Genre,
@@ -39,11 +39,11 @@ func (r *MovieRepository) SaveMovie(movie *pb.Movie) error {
 	result := r.db.Create(&dbMovie)
 	if result.Error != nil {
 		log.Printf("Error saving movie to DB: %v", result.Error)
-		return result.Error
+		return 0, result.Error
 	}
 
 	log.Printf("Movie saved with ID: %d", dbMovie.ID)
-	return nil
+	return dbMovie.ID, nil
 }
 
 func (r *MovieRepository) GetAllMovies() ([]models.Movie, error) {

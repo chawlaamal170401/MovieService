@@ -7,9 +7,7 @@ import (
 	models "github.com/razorpay/movie-service/internals/model"
 	pb "github.com/razorpay/movie-service/internals/proto"
 	"github.com/razorpay/movie-service/internals/repository"
-	"google.golang.org/grpc/metadata"
 	"log"
-	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -70,18 +68,9 @@ func (s *MovieService) GetMovieByID(ctx context.Context, in *pb.MovieIDRequest) 
 func (s *MovieService) CreateMovie(ctx context.Context, in *pb.MovieRequest) (*pb.Movie, error) {
 	log.Printf("Received an add-movie request")
 
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		log.Printf("Received metadata: %v", md)
-	} else {
-		log.Println("No metadata received")
-	}
-
-	var movie_id = int64(rand.Intn(1000))
 	created_movie := &pb.Movie{
 		Title:    in.GetTitle(),
 		Genre:    in.GetGenre(),
-		Id:       movie_id,
 		Director: in.GetDirector(),
 		Year:     in.GetYear(),
 		Rating:   in.GetRating(),
@@ -89,14 +78,23 @@ func (s *MovieService) CreateMovie(ctx context.Context, in *pb.MovieRequest) (*p
 
 	log.Printf("Received movie: %+v", created_movie)
 
-	err := s.repo.SaveMovie(created_movie)
+	id, err := s.repo.SaveMovie(created_movie)
 	if err != nil {
 		log.Printf("Error saving movie to database: %v", err)
 		return nil, err
 	}
 
-	log.Println("Movie Saved Successfully to DB")
-	return created_movie, nil
+	saved_movie := &pb.Movie{
+		Id:       int64(id),
+		Title:    in.GetTitle(),
+		Genre:    in.GetGenre(),
+		Director: in.GetDirector(),
+		Year:     in.GetYear(),
+		Rating:   in.GetRating(),
+	}
+
+	log.Println("Movie Saved Successfully to DB", id)
+	return saved_movie, nil
 }
 
 func (s *MovieService) DeleteMovieByID(ctx context.Context, in *pb.MovieIDRequest) (*pb.ResponseMessage, error) {
