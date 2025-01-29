@@ -100,8 +100,13 @@ func (s *MovieService) CreateMovie(ctx context.Context, in *pb.MovieRequest) (*p
 func (s *MovieService) DeleteMovieByID(ctx context.Context, in *pb.MovieIDRequest) (*pb.ResponseMessage, error) {
 	log.Printf("Deleting movie with ID: %d", in.GetId())
 
-	err := s.repo.DeleteMovieByID(in.GetId())
+	_, err := s.repo.GetMovieByID(in.GetId())
 	if err != nil {
+		log.Printf("Error fetching movie by ID: %v", err)
+		return &pb.ResponseMessage{Message: "Movie not present"}, err
+	}
+
+	if err := s.repo.DeleteMovieByID(in.GetId()); err != nil {
 		log.Printf("Error deleting movie: %v", err)
 		return nil, err
 	}
