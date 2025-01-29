@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/razorpay/movie-service/internals/database"
 	pb "github.com/razorpay/movie-service/internals/proto"
 	"github.com/razorpay/movie-service/internals/repository"
 	"google.golang.org/grpc/metadata"
@@ -107,12 +108,12 @@ func (s *MovieService) DeleteMovieByID(ctx context.Context, in *pb.MovieIDReques
 func (s *MovieService) UpdateMovie(ctx context.Context, in *pb.UpdateMovieRequest) (*pb.Movie, error) {
 	log.Printf("Updating movie with ID: %d", in.GetId())
 
-	updatedMovie := &pb.Movie{
+	updatedMovie := &database.Movie{
 		Title:    in.GetTitle(),
 		Genre:    in.GetGenre(),
 		Director: in.GetDirector(),
 		Year:     in.GetYear(),
-		Rating:   in.GetRating(),
+		Rating:   float64(in.GetRating()),
 	}
 
 	log.Printf("Updated Movie %v: ", updatedMovie)
@@ -129,6 +130,6 @@ func (s *MovieService) UpdateMovie(ctx context.Context, in *pb.UpdateMovieReques
 		Genre:    updatedMovie.Genre,
 		Director: updatedMovie.Director,
 		Year:     updatedMovie.Year,
-		Rating:   updatedMovie.Rating,
+		Rating:   float32(updatedMovie.Rating),
 	}, nil
 }

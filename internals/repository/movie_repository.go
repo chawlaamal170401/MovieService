@@ -67,7 +67,7 @@ func (r *MovieRepository) DeleteMovieByID(id int64) error {
 	return nil
 }
 
-func (repo *MovieRepository) UpdateMovieByID(id int64, updatedMovie *proto.Movie) error {
+func (repo *MovieRepository) UpdateMovieByID(id int64, updatedMovie *database.Movie) error {
 	var movie database.Movie
 	if err := repo.db.First(&movie, id).Error; err != nil {
 		log.Printf("Movie not found: %v", err)
