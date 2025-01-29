@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type Movie struct {
 	gorm.Model
-	Title    string  `gorm:"type:varchar(100);not null"`
-	Genre    string  `gorm:"type:varchar(50);not null"`
-	Director string  `gorm:"type:varchar(100);not null"`
-	Year     string  `gorm:"type:varchar(100);not null"`
-	Rating   float64 `gorm:"type:decimal(3,1);not null"`
+	Title    string  `json:"title"`
+	Genre    string  `json:"genre"`
+	Director string  `json:"director"`
+	Year     string  `json:"year"`
+	Rating   float64 `json:"rating"`
 }
