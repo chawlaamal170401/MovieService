@@ -1,5 +1,28 @@
 #Make File
 
+# Define the binary output directory
+BIN_DIR = bin
+MIGRATE_BIN = $(BIN_DIR)/migrate
+SERVER_GO = cmd/server/main.go
+CLIENT_GO = cmd/client/main.go
+
+all: build up run_server run_client protoc
+
+build:
+	mkdir -p $(BIN_DIR)
+	go build -o $(MIGRATE_BIN) ./cmd/migrations
+
+up: build
+	$(MIGRATE_BIN) up
+
+clean:
+	rm -rf $(BIN_DIR)
+
+run_server:
+	go run $(SERVER_GO)
+
+run_client:
+	go run $(CLIENT_GO)
 
 protoc:
     --proto_path=internals/proto \

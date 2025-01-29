@@ -39,7 +39,10 @@ func setupGRPCServer(addr string, movieService *service.MovieService) (*grpc.Ser
 
 func main() {
 	cfg, err := config.LoadConfig()
-	addr := fmt.Sprintf(cfg.Server.Host + ":" + cfg.Server.Port)
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
+
 	log.Println("Starting gRPC server...")
 
 	db, err := setupDatabase()
@@ -62,11 +65,12 @@ func main() {
 	movieRepo := repository.NewMovieRepository(db)
 	movieService := service.NewMovieServer(movieRepo)
 
-	apiURL := fmt.Sprintf(cfg.External.BaseUrl + "/" + cfg.External.Version + "/" + cfg.External.EndPoint)
+	apiURL := fmt.Sprintf("%s/%s/%s", cfg.External.BaseUrl, cfg.External.Version, cfg.External.EndPoint)
 	if err := movieService.InitializeMovies(apiURL); err != nil {
 		log.Fatalf("Failed to initialize movies: %v", err)
 	}
 
+	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 	server, listener, err := setupGRPCServer(addr, movieService)
 	if err != nil {
 		log.Fatalf("Failed to setup gRPC server: %v", err)
