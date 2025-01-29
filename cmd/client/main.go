@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/razorpay/movie-service/internals/config"
 	pb "github.com/razorpay/movie-service/internals/proto"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -13,8 +14,9 @@ import (
 )
 
 func main() {
-	address := "localhost:8080"
-	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	cfg, err := config.LoadConfig()
+	addr := fmt.Sprintf(cfg.Server.Host + ":" + cfg.Server.Port)
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("could not connect to order service: %v", err)
 	}
@@ -30,9 +32,9 @@ func main() {
 		log.Fatalf("failed to register the order server: %v", err)
 	}
 
-	addr := "0.0.0.0:5050"
-	fmt.Println("API gateway server is running on " + addr)
-	if err = http.ListenAndServe(addr, mux); err != nil {
+	clientAddr := fmt.Sprintf(cfg.Client.Host + ":" + cfg.Client.Port)
+	fmt.Println("API gateway server is running on " + clientAddr)
+	if err = http.ListenAndServe(clientAddr, mux); err != nil {
 		log.Fatal("gateway server closed abruptly: ", err)
 	}
 }

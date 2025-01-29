@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+	"github.com/razorpay/movie-service/internals/config"
 	models "github.com/razorpay/movie-service/internals/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -12,7 +14,19 @@ type DB struct {
 }
 
 func NewDB() (*gorm.DB, error) {
-	dsn := "user=movie_user password=password@123 dbname=movies_db port=5432 sslmode=disable"
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Error loading configuration: %v", err)
+		return nil, err
+	}
+
+	dsn := fmt.Sprintf("user=%s password=%s dbname=%s port=%d sslmode=%s",
+		cfg.Database.User,
+		cfg.Database.Password,
+		cfg.Database.DBName,
+		cfg.Database.Port,
+		cfg.Database.SSLMode,
+	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

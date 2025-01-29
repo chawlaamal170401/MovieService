@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"github.com/razorpay/movie-service/internals/config"
 	"github.com/razorpay/movie-service/internals/database"
 	pb "github.com/razorpay/movie-service/internals/proto"
 	"github.com/razorpay/movie-service/internals/repository"
@@ -36,7 +38,8 @@ func setupGRPCServer(addr string, movieService *service.MovieService) (*grpc.Ser
 }
 
 func main() {
-	const addr = "0.0.0.0:8080"
+	cfg, err := config.LoadConfig()
+	addr := fmt.Sprintf(cfg.Server.Host + ":" + cfg.Server.Port)
 
 	log.Println("Starting gRPC server...")
 
