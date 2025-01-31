@@ -4,21 +4,31 @@ SERVER_GO = cmd/server/main.go
 CLIENT_GO = cmd/client/main.go
 SHELL := /bin/bash
 
-all: build up run_server run_client protoc
+all: migrate build protoc run
 
-.PHONY: build
-build:
+.PHONY: migrate
+migrate:
 	mkdir -p $(BIN_DIR)
 	go build -o $(MIGRATE_BIN) ./cmd/migrations
 	chmod +x $(MIGRATE_BIN)
+	$(MIGRATE_BIN) status | grep 'Pending' > /dev/null && $(MIGRATE_BIN) up || echo "No pending migrations to apply."
 
-.PHONY: up
-up: build
-	$(MIGRATE_BIN) up
+
+.PHONY: build
+build:
+	@echo "Building server and client..."
+	mkdir -p $(BIN_DIR)
+	go build -o $(BIN_DIR)/server $(SERVER_GO)
+	go build -o $(BIN_DIR)/client $(CLIENT_GO)
 
 .PHONY: clean
 clean:
 	rm -rf $(BIN_DIR)
+
+.PHONY: run
+run: clean migrate build
+	@echo "Running server and client..."
+	@$(SHELL) -c "(go run $(SERVER_GO) &) && (go run $(CLIENT_GO) &)"
 
 .PHONY: run_server
 run_server:
@@ -27,6 +37,16 @@ run_server:
 .PHONY: run_client
 run_client:
 	go run $(CLIENT_GO)
+
+.PHONY: stop
+stop:
+	@echo "Stopping server and client..."
+	@SERVER_PID=$(shell ps aux | grep 'go run $(SERVER_GO)' | grep -v 'grep' | awk '{print $$2}') && \
+		if [ ! -z "$$SERVER_PID" ]; then kill -9 $$SERVER_PID; fi || echo "Server not running."
+	@CLIENT_PID=$(shell ps aux | grep 'go run $(CLIENT_GO)' | grep -v 'grep' | awk '{print $$2}') && \
+		if [ ! -z "$$CLIENT_PID" ]; then kill -9 $$CLIENT_PID; fi || echo "Client not running."
+	@sleep 1  # Give time for processes to terminate
+
 
 .PHONY: protoc
 protoc:
