@@ -1,5 +1,15 @@
 [server]
-    port = ":8080"
+    host = "localhost"
+    port = "8080"
+
+[client]
+    host = "localhost"
+    port = "5050"
+
+[external]
+    baseurl = "https://freetestapi.com/api"
+    version = "v1"
+    endpoint = "movies"
 
 [database]
     driver = "postgres"
@@ -8,3 +18,5 @@
     user = "movie_user"
     password = "password@123"
     dbname = "movies_db"
+    sslmode = "disable"
+
